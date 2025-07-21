@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upgrade to Premium - PortfolioMaker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">
+                <i class="fas fa-briefcase me-2"></i>PortfolioMaker
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+                <a class="nav-link" href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="row mb-5">
+            <div class="col text-center">
+                <h1 class="display-4 fw-bold text-primary">
+                    <i class="fas fa-crown me-3"></i>Upgrade to Premium
+                </h1>
+                <p class="lead text-muted">Remove branding and unlock professional features for just ₹49</p>
+            </div>
+        </div>
+
+        {% if current_user.is_premium %}
+        <!-- Already Premium -->
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card border-success">
+                    <div class="card-body text-center py-5">
+                        <div class="text-success mb-3">
+                            <i class="fas fa-crown fa-4x"></i>
+                        </div>
+                        <h3 class="text-success">You're Already Premium!</h3>
+                        <p class="text-muted">You have access to all premium features.</p>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                            <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Upgrade Options -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8">
+                <!-- Comparison Table -->
+                <div class="card shadow">
+                    <div class="card-header text-center bg-primary text-white">
+                        <h4 class="mb-0">Compare Plans</h4>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Features</th>
+                                        <th class="text-center">Free (₹19)</th>
+                                        <th class="text-center bg-warning">Premium (₹49)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><i class="fas fa-upload text-primary me-2"></i>Resume Upload</td>
+                                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-palette text-primary me-2"></i>Template Selection</td>
+                                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fas fa-globe text-primary me-2"></i>Portfolio Website</td>
+                                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                                    </tr>
+                                    <tr class="table-warning">
+                                        <td><i class="fas fa-tag text-warning me-2"></i>PortfolioMaker Branding</td>
+                                        <td class="text-center"><i class="fas fa-times text-danger"></i> Visible</td>
+                                        <td class="text-center"><i class="fas fa-check text-success"></i> Removed</td>
+                                    </tr>
+                                    <tr class="table-warning">
+                                        <td><i class="fas fa-link text-warning me-2"></i>Custom Domain</td>
+                                        <td class="text-center"><i class="fas fa-times text-danger"></i></td>
+                                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                                    </tr>
+                                    <tr class="table-warning">
+                                        <td><i class="fas fa-headset text-warning me-2"></i>Priority Support</td>
+                                        <td class="text-center"><i class="fas fa-times text-danger"></i></td>
+                                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                                    </tr>
+                                    <tr class="table-warning">
+                                        <td><i class="fas fa-tools text-warning me-2"></i>Domain Setup Help</td>
+                                        <td class="text-center"><i class="fas fa-times text-danger"></i></td>
+                                        <td class="text-center"><i class="fas fa-check text-success"></i></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Premium Benefits -->
+        <div class="row mb-5">
+            <div class="col">
+                <h3 class="text-center mb-4">Why Upgrade to Premium?</h3>
+                <div class="row g-4">
+                    <div class="col-md-3">
+                        <div class="card border-0 text-center h-100">
+                            <div class="card-body">
+                                <div class="text-warning mb-3">
+                                    <i class="fas fa-eye-slash fa-3x"></i>
+                                </div>
+                                <h5>No Branding</h5>
+                                <p class="text-muted">Remove our logo and watermarks for a completely professional look</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 text-center h-100">
+                            <div class="card-body">
+                                <div class="text-warning mb-3">
+                                    <i class="fas fa-globe fa-3x"></i>
+                                </div>
+                                <h5>Custom Domain</h5>
+                                <p class="text-muted">Use your own domain name like yourname.com instead of our subdomain</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 text-center h-100">
+                            <div class="card-body">
+                                <div class="text-warning mb-3">
+                                    <i class="fas fa-headset fa-3x"></i>
+                                </div>
+                                <h5>Priority Support</h5>
+                                <p class="text-muted">Get faster response times and dedicated assistance</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-0 text-center h-100">
+                            <div class="card-body">
+                                <div class="text-warning mb-3">
+                                    <i class="fas fa-tools fa-3x"></i>
+                                </div>
+                                <h5>Setup Help</h5>
+                                <p class="text-muted">We'll help you connect your custom domain at no extra cost</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Section -->
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card border-warning shadow">
+                    <div class="card-header bg-warning text-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-crown me-2"></i>Upgrade Now
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <h2 class="text-primary">₹49 <small class="text-muted">one-time</small></h2>
+                            <p class="text-muted">Lifetime access to all premium features</p>
+                        </div>
+
+                        <form id="payment-form">
+                            <div id="payment-element">
+                                <!-- Stripe Elements will create form elements here -->
+                            </div>
+                            <div class="mt-3 text-center">
+                                <button id="submit-button" class="btn btn-warning btn-lg w-100" disabled>
+                                    <i class="fas fa-lock me-2"></i>
+                                    <span id="button-text">Pay ₹49 Securely</span>
+                                    <div id="spinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </button>
+                            </div>
+                            <div id="payment-message" class="mt-3 text-center d-none"></div>
+                        </form>
+
+                        <div class="mt-4">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <i class="fas fa-shield-alt text-success me-1"></i>
+                                    <small class="text-muted">Secure</small>
+                                </div>
+                                <div class="col-4">
+                                    <i class="fas fa-credit-card text-success me-1"></i>
+                                    <small class="text-muted">Stripe</small>
+                                </div>
+                                <div class="col-4">
+                                    <i class="fas fa-lock text-success me-1"></i>
+                                    <small class="text-muted">Encrypted</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="row mt-5">
+            <div class="col">
+                <h3 class="text-center mb-4">Frequently Asked Questions</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card border-0 mb-3">
+                            <div class="card-body">
+                                <h6><i class="fas fa-question-circle text-primary me-2"></i>Is this a recurring payment?</h6>
+                                <p class="text-muted mb-0">No, it's a one-time payment of ₹49. You get lifetime access to premium features.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 mb-3">
+                            <div class="card-body">
+                                <h6><i class="fas fa-question-circle text-primary me-2"></i>Can I downgrade later?</h6>
+                                <p class="text-muted mb-0">Premium is permanent. Once upgraded, you keep all features forever.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 mb-3">
+                            <div class="card-body">
+                                <h6><i class="fas fa-question-circle text-primary me-2"></i>How do I connect my domain?</h6>
+                                <p class="text-muted mb-0">After upgrade, we'll provide step-by-step instructions and help you set it up.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 mb-3">
+                            <div class="card-body">
+                                <h6><i class="fas fa-question-circle text-primary me-2"></i>Is my payment secure?</h6>
+                                <p class="text-muted mb-0">Yes, we use Stripe for secure payment processing. We never store your card details.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% if not current_user.is_premium %}
+    <script>
+        // Initialize Stripe
+        const stripe = Stripe('pk_test_your_publishable_key_here'); // Replace with your publishable key
+        let elements;
+
+        initialize();
+
+        async function initialize() {
+            const response = await fetch("/create-payment-intent", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount: 4900 }),
+            });
+            
+            const { client_secret } = await response.json();
+
+            elements = stripe.elements({ clientSecret: client_secret });
+
+            const paymentElement = elements.create("payment");
+            paymentElement.mount("#payment-element");
+
+            // Enable the button when the element is ready
+            paymentElement.on('ready', () => {
+                document.querySelector("#submit-button").disabled = false;
+            });
+        }
+
+        document.querySelector("#payment-form").addEventListener("submit", handleSubmit);
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+            setLoading(true);
+
+            const { error } = await stripe.confirmPayment({
+                elements,
+                confirmParams: {
+                    return_url: window.location.origin + "/payment-success",
+                },
+            });
+
+            if (error) {
+                if (error.type === "card_error" || error.type === "validation_error") {
+                    showMessage(error.message);
+                } else {
+                    showMessage("An unexpected error occurred.");
+                }
+            }
+
+            setLoading(false);
+        }
+
+        function setLoading(isLoading) {
+            const submitButton = document.querySelector("#submit-button");
+            const buttonText = document.querySelector("#button-text");
+            const spinner = document.querySelector("#spinner");
+
+            if (isLoading) {
+                submitButton.disabled = true;
+                buttonText.textContent = "Processing...";
+                spinner.classList.remove("d-none");
+            } else {
+                submitButton.disabled = false;
+                buttonText.textContent = "Pay ₹49 Securely";
+                spinner.classList.add("d-none");
+            }
+        }
+
+        function showMessage(messageText) {
+            const messageContainer = document.querySelector("#payment-message");
+            messageContainer.classList.remove("d-none");
+            messageContainer.textContent = messageText;
+            messageContainer.className = "mt-3 text-center alert alert-danger";
+        }
+    </script>
+    {% endif %}
+</body>
+</html>

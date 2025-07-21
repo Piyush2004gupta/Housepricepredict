@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Portfolio - PortfolioMaker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">
+                <i class="fas fa-briefcase me-2"></i>PortfolioMaker
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+                <a class="nav-link" href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <h2>Create New Portfolio</h2>
+                <p class="text-muted">Upload your resume and choose a template to create your portfolio website</p>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" enctype="multipart/form-data" id="portfolioForm">
+            <div class="row">
+                <!-- Step 1: Upload Resume -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-upload me-2"></i>Step 1: Upload Your Resume
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Portfolio Title</label>
+                                <input type="text" class="form-control" id="title" name="title" 
+                                       placeholder="e.g., John Doe - Software Developer" required>
+                                <div class="form-text">This will be the title of your portfolio website</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="resume" class="form-label">Resume File</label>
+                                <input type="file" class="form-control" id="resume" name="resume" 
+                                       accept=".pdf,.docx,.txt" required>
+                                <div class="form-text">
+                                    Supported formats: PDF, DOCX, TXT (Max 16MB)
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-info-circle me-2"></i>What happens next?</h6>
+                                <ul class="mb-0">
+                                    <li>We'll extract information from your resume automatically</li>
+                                    <li>You can edit and refine the extracted information</li>
+                                    <li>Your data is processed securely and never shared</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Choose Template -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-palette me-2"></i>Step 2: Choose Template
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                {% for template in templates %}
+                                <div class="col-md-6">
+                                    <div class="card template-card" onclick="selectTemplate('{{ template.id }}')">
+                                        <img src="https://via.placeholder.com/200x150/{{ loop.cycle('6c5ce7', 'fd79a8', '00b894', '0984e3') }}/ffffff?text={{ template.name }}" 
+                                             class="card-img-top" alt="{{ template.name }}">
+                                        <div class="card-body p-2">
+                                            <h6 class="card-title mb-1">{{ template.name }}</h6>
+                                            <p class="card-text small text-muted mb-0">
+                                                {% if template.id == 'modern' %}
+                                                Clean and professional design
+                                                {% elif template.id == 'creative' %}
+                                                Bold and artistic layout
+                                                {% elif template.id == 'minimal' %}
+                                                Simple and elegant
+                                                {% elif template.id == 'tech' %}
+                                                Perfect for developers
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                        <input type="radio" name="template" value="{{ template.id }}" class="d-none template-radio">
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="mt-3">
+                                <div class="alert alert-warning">
+                                    <h6><i class="fas fa-crown me-2"></i>Branding Notice</h6>
+                                    <p class="mb-2">Your portfolio will include:</p>
+                                    <ul class="mb-2">
+                                        <li>Our logo and branding</li>
+                                        <li>URL: yourname.portfoliomaker.com</li>
+                                    </ul>
+                                    <p class="mb-0">
+                                        <strong>Upgrade to Premium (₹49)</strong> to remove branding and use custom domains!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg" id="createBtn" disabled>
+                            <i class="fas fa-magic me-2"></i>Create Portfolio
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function selectTemplate(templateId) {
+            // Remove active class from all cards
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('border-primary', 'bg-light');
+            });
+            
+            // Add active class to selected card
+            event.currentTarget.classList.add('border-primary', 'bg-light');
+            
+            // Check the radio button
+            document.querySelector(`input[value="${templateId}"]`).checked = true;
+            
+            // Enable create button if all fields are filled
+            checkFormValidity();
+        }
+
+        function checkFormValidity() {
+            const title = document.getElementById('title').value;
+            const resume = document.getElementById('resume').files.length > 0;
+            const template = document.querySelector('input[name="template"]:checked');
+            const createBtn = document.getElementById('createBtn');
+            
+            if (title && resume && template) {
+                createBtn.disabled = false;
+            } else {
+                createBtn.disabled = true;
+            }
+        }
+
+        // Add event listeners
+        document.getElementById('title').addEventListener('input', checkFormValidity);
+        document.getElementById('resume').addEventListener('change', checkFormValidity);
+
+        // File upload validation
+        document.getElementById('resume').addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const maxSize = 16 * 1024 * 1024; // 16MB
+                if (file.size > maxSize) {
+                    alert('File size too large. Please select a file smaller than 16MB.');
+                    this.value = '';
+                    checkFormValidity();
+                    return;
+                }
+                
+                const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Invalid file type. Please select a PDF, DOCX, or TXT file.');
+                    this.value = '';
+                    checkFormValidity();
+                    return;
+                }
+            }
+            checkFormValidity();
+        });
+
+        // Form submission with loading state
+        document.getElementById('portfolioForm').addEventListener('submit', function() {
+            const createBtn = document.getElementById('createBtn');
+            createBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating Portfolio...';
+            createBtn.disabled = true;
+        });
+    </script>
+
+    <style>
+        .template-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .template-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .template-card.border-primary {
+            border-color: #0d6efd !important;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Portfolio - PortfolioMaker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">
+                <i class="fas fa-briefcase me-2"></i>PortfolioMaker
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+                <a class="nav-link" href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2>Edit Portfolio: {{ portfolio.title }}</h2>
+                        <p class="text-muted">Fine-tune your portfolio information</p>
+                    </div>
+                    <div>
+                        <a href="{{ url_for('preview_portfolio', id=portfolio.id) }}" 
+                           class="btn btn-outline-primary" target="_blank">
+                            <i class="fas fa-eye me-2"></i>Preview
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" id="editForm">
+            <div class="row">
+                <!-- Personal Information -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-user me-2"></i>Personal Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       value="{{ resume_data.name }}" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ resume_data.email }}" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" 
+                                       value="{{ resume_data.phone }}">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="summary" class="form-label">Professional Summary</label>
+                                <textarea class="form-control" id="summary" name="summary" rows="4" 
+                                          placeholder="Write a brief summary about yourself and your professional background">{{ resume_data.summary }}</textarea>
+                                <div class="form-text">This will be displayed at the top of your portfolio</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Settings -->
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-cog me-2"></i>Portfolio Settings
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Current Template</label>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-palette me-2"></i>
+                                    <strong>{{ portfolio.template_id|title }}</strong> template
+                                    <br>
+                                    <small class="text-muted">To change template, create a new portfolio</small>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Portfolio URL</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">https://</span>
+                                    <input type="text" class="form-control" 
+                                           value="portfoliomaker.com/portfolio/{{ portfolio.id }}" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" 
+                                            onclick="copyPortfolioUrl()">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                {% if not current_user.is_premium %}
+                                <div class="form-text text-warning">
+                                    <i class="fas fa-crown me-1"></i>
+                                    Upgrade to Premium to use custom domains
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Visibility</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" 
+                                           {% if portfolio.is_published %}checked{% endif %} 
+                                           id="isPublished" disabled>
+                                    <label class="form-check-label" for="isPublished">
+                                        Portfolio is published and visible to public
+                                    </label>
+                                </div>
+                            </div>
+
+                            {% if not current_user.is_premium %}
+                            <div class="alert alert-warning">
+                                <h6><i class="fas fa-info-circle me-2"></i>Free Plan Features</h6>
+                                <ul class="mb-2">
+                                    <li>PortfolioMaker branding</li>
+                                    <li>Standard domain</li>
+                                </ul>
+                                <a href="{{ url_for('upgrade') }}" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-star me-1"></i>Upgrade for ₹49
+                                </a>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-success">
+                                <h6><i class="fas fa-crown me-2"></i>Premium Features Active</h6>
+                                <ul class="mb-0">
+                                    <li>No branding</li>
+                                    <li>Custom domain support</li>
+                                    <li>Priority support</li>
+                                </ul>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Experience Section (Future Enhancement) -->
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-briefcase me-2"></i>Experience & Skills
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <h6><i class="fas fa-info-circle me-2"></i>Coming Soon</h6>
+                                <p class="mb-0">Advanced editing for experience, education, and skills will be available in the next update. 
+                                For now, the information from your uploaded resume is automatically used.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row mt-4">
+                <div class="col">
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                        <div>
+                            <a href="{{ url_for('preview_portfolio', id=portfolio.id) }}" 
+                               class="btn btn-outline-primary me-2" target="_blank">
+                                <i class="fas fa-eye me-2"></i>Preview
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function copyPortfolioUrl() {
+            const urlInput = document.querySelector('input[value*="portfoliomaker.com"]');
+            const fullUrl = 'https://' + urlInput.value;
+            
+            navigator.clipboard.writeText(fullUrl).then(function() {
+                // Show success feedback
+                const button = event.target.closest('button');
+                const originalHtml = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                button.classList.remove('btn-outline-secondary');
+                button.classList.add('btn-success');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalHtml;
+                    button.classList.remove('btn-success');
+                    button.classList.add('btn-outline-secondary');
+                }, 2000);
+            }).catch(function() {
+                // Fallback for older browsers
+                urlInput.select();
+                document.execCommand('copy');
+                alert('URL copied to clipboard');
+            });
+        }
+
+        // Form submission with loading state
+        document.getElementById('editForm').addEventListener('submit', function() {
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+            submitBtn.disabled = true;
+        });
+
+        // Auto-save functionality (optional enhancement)
+        let autoSaveTimeout;
+        document.querySelectorAll('input, textarea').forEach(field => {
+            field.addEventListener('input', function() {
+                clearTimeout(autoSaveTimeout);
+                autoSaveTimeout = setTimeout(() => {
+                    // Auto-save logic could be implemented here
+                    console.log('Auto-saving changes...');
+                }, 3000);
+            });
+        });
+    </script>
+</body>
+</html>
